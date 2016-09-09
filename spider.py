@@ -33,7 +33,6 @@ def get(url):
     return html
  
 def parse(html):
-    print "parse"
     #print html      
     pattern = re.compile('<div class="pic-area".*?<img  class="z-tag data-lazyload-src".*?data-lazyload-src="(.*?)".*?>.*?</div>',re.S)  
     myItems = re.findall(pattern, html)
@@ -42,6 +41,18 @@ def parse(html):
         items.append(item)
 
     return items
+
+def collect_links(html):
+    TAG_RE = re.compile('<[^>]+>')
+
+    pattern = re.compile('(?<=href=").*?(?=")')
+    links = re.findall(pattern, html)
+    results = []
+    for link in links:
+        if link[0:4] == 'http':
+            print link
+    return links
+
 
 def save(images):
     i = 0
@@ -53,11 +64,17 @@ def save(images):
         f.close()
         i = i + 1
 
+def create_dir(dir):
+    if not os.path.exists(dir):
+        print('Creating directory ' + dir)
+        os.makedirs(dir)
  
 def main():
-    html = get("http://pp.163.com/longer-yowoo/pp/10069141.html")
+    create_dir(ROOT)
+    html = get("http://pp.163.com/muzivision-/pp/18200026.html")
     images = parse(html)
-    save(images)
+    collect_links(html)
+    #save(images)
  
  
 if __name__ == "__main__":
