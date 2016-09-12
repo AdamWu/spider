@@ -29,7 +29,20 @@ visited = set()
 
 logging.basicConfig(filename='dump.log', format='%(asctime)s %(message)s', level=logging.INFO)
 
+
+
+IGNORES = [
+    'like',
+    'bravo',
+]
+
+FILTERS = [
+    'http://pp.163.com/',
+    '/pp/'
+]
+
 def save(images):
+    logging.info("save %s", len(images))
     for imgurl in images:
         print 'save ', imgurl 
         strs = imgurl.split('/')
@@ -68,7 +81,12 @@ def main():
         # new urls
         for link in links:
             if (link not in visited) and link[0:18] == 'http://pp.163.com/':
-                queue.put(link)
+                match = re.search(re.compile('/pp/[a-z]+'), link)
+                if match:
+                    print 'exclude ', link
+                    logging.info("exclude %s", link)
+                else:
+                    queue.put(link)
 
         save(images)
 
