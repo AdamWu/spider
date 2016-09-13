@@ -30,13 +30,16 @@ visited = set()
 logging.basicConfig(filename='dump.log', format='%(asctime)s %(message)s', level=logging.INFO)
 
 
-#URL = 'http://pp.163.com/pp/#p=10&c=-1&m=3&page=1'
-URL = 'http://pp.163.com/undeadzombie/pp/18220032.html'
+URL = 'http://pp.163.com/pp/#p=10&c=-1&m=3&page=1'
 
 IGNORES = [
     '/pp/[a-z]+',
     '/square/',
-    '/group/'
+    '/group/',
+    '/pic/',
+    '/html/',
+    '/pp/#p=-1',
+    '/pp/#p=^10',
 ]
 
 FILTERS = [
