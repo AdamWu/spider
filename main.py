@@ -30,15 +30,17 @@ visited = set()
 logging.basicConfig(filename='dump.log', format='%(asctime)s %(message)s', level=logging.INFO)
 
 
+#URL = 'http://pp.163.com/pp/#p=10&c=-1&m=3&page=1'
+URL = 'http://pp.163.com/undeadzombie/pp/18220032.html'
 
 IGNORES = [
-    'like',
-    'bravo',
+    '/pp/[a-z]+',
+    '/square/',
+    '/group/'
 ]
 
 FILTERS = [
     'http://pp.163.com/',
-    '/pp/'
 ]
 
 def save(images):
@@ -63,7 +65,7 @@ def main():
 
     Spider(DEFAULT_HEADERS, DEFAULT_TIMEOUT)
 
-    queue.put("http://pp.163.com/pp/#p=10&c=-1&m=3&page=1")
+    queue.put(URL)
 
     # start 
     while queue.empty() == False:
@@ -78,17 +80,23 @@ def main():
 
         visited.add(url)
 
+        save(images)
+
         # new urls
         for link in links:
             if (link not in visited) and link[0:18] == 'http://pp.163.com/':
-                match = re.search(re.compile('/pp/[a-z]+'), link)
-                if match:
-                    print 'exclude ', link
-                    logging.info("exclude %s", link)
-                else:
-                    queue.put(link)
 
-        save(images)
+                exist = False
+                for ignore in IGNORES:
+                    match = re.search(re.compile(ignore), link)
+                    if match:
+                        #logging.info("exclude %s", link)
+                        exist = True
+                        break
+
+                if exist == False:  
+                    queue.put(link)
+    
 
     print 'done'
  
