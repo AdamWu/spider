@@ -8,7 +8,10 @@ import ssl
 import Queue
 from spider import Spider
 import logging
-
+import time
+import random
+import datetime
+import uuid
 
 #context = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
 
@@ -21,7 +24,7 @@ DEFAULT_HEADERS = {
     'User-Agent':'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.1.6) Gecko/20091201 Firefox/3.5.6',
     'ContentType': 'application/x-www-form-urlencoded; chartset=UTF-8',
 }
-DEFAULT_TIMEOUT = 120
+DEFAULT_TIMEOUT = 100
  
 queue = Queue.Queue()
 
@@ -30,7 +33,7 @@ visited = set()
 logging.basicConfig(filename='dump.log', format='%(asctime)s %(message)s', level=logging.INFO)
 
 
-URL = 'http://pp.163.com/pp/#p=10&c=-1&m=3&page=1'
+URL = 'https://mp.weixin.qq.com/s/ekLzkxbEv4CPlitYRv9-HQ'
 
 IGNORES = [
     '/pp/[a-z]+',
@@ -46,16 +49,49 @@ FILTERS = [
     'http://pp.163.com/',
 ]
 
+def generateFileName(name, ext):
+    if len(name) == 0:
+        name = datetime.datetime.now().strftime('%y%m%d%H%M%S')
+    
+    filename = os.path.join(ROOT, name) + ext
+    i = 0
+    while os.path.exists(filename):
+        filename = os.path.join(ROOT, name) + str(i) + ext
+        i = i + 1
+
+    return filename
+
 def save(images):
     logging.info("save %s", len(images))
-    for imgurl in images:
-        print 'save ', imgurl 
-        strs = imgurl.split('/')
-        u = urllib.urlopen(imgurl)
-        data = u.read()
-        f = open(os.path.join(ROOT, strs[-1]), 'wb')
+    for url in images:
+        title = images[url]
+        print 'save ', url, title
+
+        # download
+        try:
+            request = urllib2.Request(url, headers=DEFAULT_HEADERS)
+            response = urllib2.urlopen(request, timeout=DEFAULT_TIMEOUT)
+            
+        except urllib2.URLError as e:
+            print 'We failed to reach a server.'
+            print e
+        except urllib2.HTTPError as e: 
+            print 'The server could not fulfill the request.' 
+            print e
+
+        # save to file
+        try:
+            data = response.read()
+        except ssl.SSLError as e:
+            print "error read"
+            print e
+
+        filename = generateFileName(title, '.jpg')
+        f = open(filename, 'wb')
         f.write(data)
         f.close()
+        time.sleep(random.uniform(0,1))
+
 
 def create_dir(dir):
     if not os.path.exists(dir):
