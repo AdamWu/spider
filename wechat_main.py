@@ -14,6 +14,7 @@ import uuid
 import json
 import ssl
 import socket
+import shutil
 
 ROOT = 'result/'
 
@@ -51,6 +52,8 @@ def save(images, subdir):
     subdir = re.sub('[\/:*?"<>|]','-',subdir).replace('.','')
 
     dstdir = os.path.join(ROOT, subdir)
+    if os.path.exists(dstdir):
+        shutil.rmtree(dstdir)
     create_dir(dstdir)
 
     i = 0
